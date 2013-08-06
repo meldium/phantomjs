@@ -110,7 +110,7 @@ function definePageSignalHandler(page, handlers, handlerName, signalName) {
             this[signalName].connect(f);
         }
     });
-    
+
     page.__defineGetter__(handlerName, function() {
         return !!handlers[handlerName] && typeof handlers[handlerName].callback === "function" ?
             handlers[handlerName].callback :
@@ -142,7 +142,7 @@ function definePageCallbackHandler(page, handlers, handlerName, callbackConstruc
                 // Callback will receive a "deserialized", normal "arguments" array
                 callbackObj.returnValue = f.apply(this, arguments[0]);
             };
-            
+
             // Store the new handler for reference
             handlers[handlerName] = {
                 callback: f,
@@ -153,7 +153,7 @@ function definePageCallbackHandler(page, handlers, handlerName, callbackConstruc
             callbackObj.called.connect(connector);
         }
     });
-    
+
     page.__defineGetter__(handlerName, function() {
         var handlerObj = handlers[handlerName];
         return (!!handlerObj && typeof handlerObj.callback === "function" && typeof handlerObj.connector === "function") ?
@@ -251,7 +251,7 @@ function decorateNewPage(opts, page) {
     definePageSignalHandler(page, handlers, "onResourceRequested", "resourceRequested");
 
     definePageSignalHandler(page, handlers, "onResourceReceived", "resourceReceived");
-    
+
     definePageSignalHandler(page, handlers, "onResourceError", "resourceError");
 
     definePageSignalHandler(page, handlers, "onResourceTimeout", "resourceTimeout");
@@ -380,6 +380,34 @@ function decorateNewPage(opts, page) {
         str = str.replace(/,$/, '') + '); }';
         return this.evaluateJavaScript(str);
     };
+
+    // Add shim for Function.prototype.bind() from:
+    //    https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Function/bind#Compatibility
+    page.evaluate(function () {
+        if (!Function.prototype.bind) {
+            Function.prototype.bind = function (oThis) {
+                if (typeof this !== "function") {
+                    // closest thing possible to the ECMAScript 5 internal IsCallable function
+                    throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
+                }
+
+                var aArgs = Array.prototype.slice.call(arguments, 1),
+                    fToBind = this,
+                    fNOP = function () {},
+                    fBound = function () {
+                        return fToBind.apply(this instanceof fNOP && oThis
+                                               ? this
+                                               : oThis,
+                                             aArgs.concat(Array.prototype.slice.call(arguments)));
+                    };
+
+                fNOP.prototype = this.prototype;
+                fBound.prototype = new fNOP();
+
+                return fBound;
+            };
+        }
+    });
 
     /**
      * evaluate a function in the page, asynchronously

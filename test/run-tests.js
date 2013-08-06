@@ -72,6 +72,7 @@ phantom.injectJs("./system-spec.js");
 phantom.injectJs("./webkit-spec.js");
 require("./module_spec.js");
 require("./require/require_spec.js");
+require("./Function.prototype.js");
 require("./cjk-text-codecs.js");
 
 // Launch tests
