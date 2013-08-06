@@ -45,7 +45,7 @@ phantom.__defineErrorSignalHandler__ = function(obj, page, handlers) {
             try { signal.disconnect(handlerObj.connector); }
             catch (e) {}
         }
-        
+
         // Delete the previous handler
         delete handlers[handlerName];
 
@@ -57,17 +57,17 @@ phantom.__defineErrorSignalHandler__ = function(obj, page, handlers) {
 
                 f(message, revisedStack);
             };
-            
+
             // Store the new handler for reference
             handlers[handlerName] = {
                 callback: f,
                 connector: connector
             };
-            
+
             signal.connect(connector);
         }
     });
-    
+
     obj.__defineGetter__(handlerName, function() {
         var handlerObj = handlers[handlerName];
         return (!!handlerObj && typeof handlerObj.callback === "function" && typeof handlerObj.connector === "function") ?
@@ -313,6 +313,32 @@ phantom.callback = function(callback) {
         // include CoffeeScript which takes care of adding .coffee extension (only if not in Webdriver mode)
         if (!phantom.webdriverMode) {
             require('_coffee-script');
+        }
+
+        // Add shim for Function.prototype.bind() from:
+        //    https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Function/bind#Compatibility
+        if (!Function.prototype.bind) {
+            Function.prototype.bind = function (oThis) {
+                if (typeof this !== "function") {
+                    // closest thing possible to the ECMAScript 5 internal IsCallable function
+                    throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
+                }
+
+                var aArgs = Array.prototype.slice.call(arguments, 1),
+                    fToBind = this,
+                    fNOP = function () {},
+                    fBound = function () {
+                        return fToBind.apply(this instanceof fNOP && oThis
+                                               ? this
+                                               : oThis,
+                                             aArgs.concat(Array.prototype.slice.call(arguments)));
+                    };
+
+                fNOP.prototype = this.prototype;
+                fBound.prototype = new fNOP();
+
+                return fBound;
+            };
         }
     }());
 }());
