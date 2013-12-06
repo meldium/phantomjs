@@ -5,33 +5,7 @@ set -e
 QT_CFG=''
 
 BUILD_CONFIRM=0
-COMPILE_JOBS=1
-MAKEFLAGS_JOBS=''
-
-if [[ "$MAKEFLAGS" != "" ]]; then
-  MAKEFLAGS_JOBS=$(echo $MAKEFLAGS | egrep -o '\-j[0-9]+' | egrep -o '[0-9]+')
-fi
-
-if [[ "$MAKEFLAGS_JOBS" != "" ]]; then
-  # user defined number of jobs in MAKEFLAGS, re-use that number
-  COMPILE_JOBS=$MAKEFLAGS_JOBS
-elif [[ $OSTYPE = darwin* ]]; then
-   # We only support modern Mac machines, they are at least using
-   # hyperthreaded dual-core CPU.
-   COMPILE_JOBS=4
-elif [[ $OSTYPE == freebsd* ]]; then
-   COMPILE_JOBS=`sysctl -n hw.ncpu`
-else
-   CPU_CORES=`grep -c ^processor /proc/cpuinfo`
-   if [[ "$CPU_CORES" -gt 1 ]]; then
-       COMPILE_JOBS=$CPU_CORES
-   fi
-fi
-
-if [[ "$COMPILE_JOBS" -gt 8 ]]; then
-   # Safety net.
-   COMPILE_JOBS=8
-fi
+COMPILE_JOBS=16
 
 until [ -z "$1" ]; do
     case $1 in
