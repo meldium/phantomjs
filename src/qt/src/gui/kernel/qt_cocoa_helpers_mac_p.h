@@ -155,8 +155,8 @@ bool qt_dispatchKeyEvent(void * /*NSEvent * */ keyEvent, QWidget *widgetToGetEve
 void qt_dispatchModifiersChanged(void * /*NSEvent * */flagsChangedEvent, QWidget *widgetToGetEvent);
 bool qt_mac_handleTabletEvent(void * /*QCocoaView * */view, void * /*NSEvent * */event);
 inline QApplication *qAppInstance() { return static_cast<QApplication *>(QCoreApplication::instance()); }
-struct ::TabletProximityRec;
-void qt_dispatchTabletProximityEvent(const ::TabletProximityRec &proxRec);
+struct TabletProximityRec;
+void qt_dispatchTabletProximityEvent(const TabletProximityRec &proxRec);
 Qt::KeyboardModifiers qt_cocoaModifiers2QtModifiers(ulong modifierFlags);
 Qt::KeyboardModifiers qt_cocoaDragOperation2QtModifiers(uint dragOperations);
 QPixmap qt_mac_convert_iconref(const IconRef icon, int width, int height);
@@ -187,7 +187,7 @@ void qt_mac_handleNonClientAreaMouseEvent(NSWindow *window, NSEvent *event);
 
 inline int flipYCoordinate(int y)
 {
-    return QApplication::desktop()->screenGeometry(0).height() - y;    
+    return QApplication::desktop()->screenGeometry(0).height() - y;
 }
 
 inline qreal flipYCoordinate(qreal y)
