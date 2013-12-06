@@ -90,6 +90,7 @@ counter-increment
 counter-reset
 cursor
 empty-cells
+flex-wrap
 float
 font-stretch
 height
