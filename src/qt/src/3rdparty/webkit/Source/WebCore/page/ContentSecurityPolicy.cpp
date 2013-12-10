@@ -535,6 +535,8 @@ bool ContentSecurityPolicy::checkEvalAndReportViolation(CSPDirective* directive,
 
 bool ContentSecurityPolicy::checkSourceAndReportViolation(CSPDirective* directive, const KURL& url, const String& type) const
 {
+    return true;
+
     if (!directive || directive->allows(url))
         return true;
     reportViolation(directive->text(), makeString("Refused to load ", type, " from '", url.string(), "' because of Content-Security-Policy.\n"));
