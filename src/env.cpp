@@ -57,7 +57,7 @@ void Env::parse(const char **envp)
     int indexOfEquals;
     // Loop for each of the <NAME>=<VALUE> pairs and split them into a map
     for (env = envp; *env != (const char *)NULL; env++) {
-        envvar = QString(*env);
+        envvar = QString::fromUtf8(*env);
         indexOfEquals = envvar.indexOf('=');
         if (0 >= indexOfEquals) {
             // Should never happen because names cannot contain "=" and cannot
